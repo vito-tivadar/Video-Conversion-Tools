@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Conversion Test Tool</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        background-color: #1f1f1f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+
+        color: #ccc;
+
+        font-family: 'Inter', sans-serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+        text-align: center;
+      }
+
+      p {
+        color: #6e6e6e;
+      }
+
+      hr {
+        width: 90%;
+        margin-block: 5rem;
+        color: #2c2c2c;
+      }
+
+      .video-comparer {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+        width: min(1200px, 95%);
+      }
+      @media only screen and (max-width: 600px) {
+        .video-comparer {
+          flex-wrap: wrap;
+        }
+      }
+
+      .video-container {
+        border: 1px #2c2c2c solid;
+        width: 100%;
+      }
+
+      video {
+        width: 100%;
+        aspect-ratio: calc(16 / 9);
+        background-color: #2c2c2c;
+      }
+
+      .bad-conversion {
+        color: #c20000;
+      }
+      .ok-conversion {
+        color: #d3c500;
+      }
+      .good-conversion {
+        color: #009c08;
+      }
+
+      .resolution-changed {
+        color: #a437d6;
+      }
+      .blue {
+        color: #378ed6;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="padding-block: 3rem">
+      <h1>Video Conversion Test Tool</h1>
+      <p>
+        This tool is used for testing videos converted with <a href="./converter.ps1" class="blue">converter.ps1</a>
+      </p>
+    </div>
+    <hr style="margin-top: 0px" />
+  </body>
+
+  <script src="videos.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"
+  ></script>
+
+  <script>
+    videos.forEach((video) => {
+      console.log('video: ', video.inputFile.size, video.outputFile.size);
+
+      let resized = video.resizeInfo.resized
+        ? `[<span class="resolution-changed">Resized to ${video.resizeInfo.newSize}p</span>]`
+        : '';
+
+      let fileSizeClass = 'bad-conversion';
+
+      if (video.inputFile.size * 0.66 > video.outputFile.size) {
+        console.log('ok', video.inputFile.size * 0.66, video.outputFile.size);
+        fileSizeClass = 'ok-conversion';
+      }
+
+      if (video.inputFile.size * 0.33 > video.outputFile.size) {
+        console.log('good', video.inputFile.size * 0.66, video.outputFile.size);
+        fileSizeClass = 'good-conversion';
+      }
+
+      let element = `
+      <div class="video-comparer">
+        <div class="video-container">
+          <h3>${video.inputFile.name} (<span class="blue">${video.inputFile.sizeFormatted}</span>)</h3>
+          <video controls="" muted="" preload="none" onclick="this.play()" poster="/video.jpg">
+            <source src="${video.inputFile.path}" type="video/${video.inputFile.extension}" />
+          </video>
+        </div>
+        <div class="video-container">
+          <h3>${video.outputFile.name} (<span class="${fileSizeClass}">${video.outputFile.sizeFormatted}</span>) ${resized}</h3>
+          <video controls="" muted="" preload="none" onclick="this.play()" poster="/video.jpg">
+            <source src="${video.outputFile.path}" type="video/${video.outputFile.extension}" />
+          </video>
+        </div>
+      </div>
+      <hr/>
+    `;
+
+      $('body').append(element);
+    });
+  </script>
+</html>
